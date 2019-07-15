@@ -1,0 +1,63 @@
+html {
+    min-width: 1005px;
+    overflow: hidden;
+}
+body {
+    background-color: #8d8d8d;
+}
+.main {
+    margin-left: 15%;
+    padding: 0px 10px;
+}
+.mncbtns {
+    height: 100%;
+    width: 45px;
+    margin: 0;
+    padding: 0 5px;
+    font-size: auto;
+    text-decoration: none;
+    text-align: center;
+    color: #A6A6A6;
+    justify-self: center;
+    -webkit-app-region: no-drag;
+}
+.mncbtns:hover {
+    color: #BFBFBF;
+    text-decoration: none;
+    background-color: #A6A6A6;
+    height: 100%;
+}
+#close:hover {
+    background-color: #fa4f4f !important;
+}
+.navbar {
+    background: #595959;
+    height: fit-content;
+    min-height: fit-content;
+    margin: 0;
+    padding: 0;
+    -webkit-app-region: drag;
+}
+.sidenav {
+    height: 100%;
+    margin-top: 20px;
+    width: 15%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #595959;
+    overflow: hidden;
+    padding-top: 20px;
+}
+.sidenav a {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #A6A6A6;
+    display: block;
+}
+.sidenav a:hover {
+    color: #BFBFBF;
+    background-color: #A6A6A6;
+} 

@@ -1,0 +1,31 @@
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>SoulsLauncher</title>
+        <base href="./">
+        <link rel="stylesheet" type="text/css" href="splash.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
+        <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <img src="assets/soulstext.png" alt="Souls Logo" id="image">
+        <p id="yes">Loading... Please Wait</p>
+        <div class="spinner newton" id="newton">
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+        </div>
+    </body>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        ipcRenderer.on('ready', function() {
+            document.getElementById("yes").innerHTML = "Ready";
+            document.getElementById("newton").style('display', 'none');
+            document.getElementById("image").style('margin-top', '40vh');
+        });
+    </script>
+</html>

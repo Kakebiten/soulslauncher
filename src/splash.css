@@ -1,0 +1,125 @@
+* {
+  -webkit-app-region: drag;
+  justify-content: center;
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bolder;
+}
+
+html {
+  background-color: #595959
+}
+
+img {
+  width: 150px;
+  height: auto;
+  margin-top: 15vh;
+}
+
+@-webkit-keyframes fade {
+    from { opacity: 1; }
+    to { opacity: 0.2; }
+}
+@keyframes fade {
+    from { opacity: 1; }
+    to { opacity: 0.2; }
+}
+@-webkit-keyframes rotate {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+}
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@-webkit-keyframes newtonBallFirst {
+    0% { -webkit-transform: rotate(70deg); }
+    50% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(0deg); }
+  }
+  @-webkit-keyframes newtonBallMiddle {
+    0% { -webkit-transform: rotate(0deg); }
+    50% { -webkit-transform: rotate(0deg); }
+    51% { -webkit-transform: rotate(-0.5deg); }
+    52% { -webkit-transform: rotate(0.5deg); }
+    53% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(0deg); }
+  }
+  @-webkit-keyframes newtonBallLast {
+    0% { -webkit-transform: rotate(0deg); }
+    50% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(-70deg); }
+  }
+  @keyframes newtonBallFirst {
+    0% { transform: rotate(70deg); }
+    50% { transform: rotate(0deg); }
+    100% { transform: rotate(0deg); }
+  }
+  @keyframes newtonBallMiddle {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(0deg); }
+    51% { transform: rotate(-0.5deg); }
+    52% { transform: rotate(0.5deg); }
+    53% { transform: rotate(0deg); }
+    100% { transform: rotate(0deg); }
+  }
+  @keyframes newtonBallLast {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(0deg); }
+    100% { transform: rotate(-70deg); }
+  }
+  
+  .spinner.newton .ball {
+    position: relative;
+    display: inline-block;
+    width: 1em;
+    height: 6em;
+    -webkit-transform-origin: 50% 0%;
+    transform-origin: 50% 0%;
+  }
+  
+  .spinner.newton .ball::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 1em;
+    height: 1em;
+    border-radius: 100%;
+    background: radial-gradient(circle at 40% 40%, rgb(79, 77, 77) 39%, rgb(55, 55, 55) 42%);
+  }
+  
+  .spinner.newton .ball::before {
+    content: '';
+    position: absolute;
+    width: 0.08em;
+    margin-left: -0.04em;
+    top: 0;
+    left: 50%;
+    bottom: 1em;
+    background: linear-gradient(transparent, gray);
+  }
+  
+  .spinner.newton .ball {
+    -webkit-animation: newtonBallMiddle 1s infinite alternate;
+    animation: newtonBallMiddle 1s infinite alternate;
+  }
+  
+  .spinner.newton .ball:first-child {
+    -webkit-animation: newtonBallFirst 1s ease-in infinite alternate;
+    animation: newtonBallFirst 1s ease-in infinite alternate;
+  }
+  .spinner.newton .ball:first-child::after {
+    -webkit-animation: newtonBallLast 1s ease-out infinite alternate-reverse;
+    animation: newtonBallLast 1s ease-out infinite alternate-reverse;
+  }
+  
+  .spinner.newton .ball:last-child {
+    -webkit-animation: newtonBallLast 1s ease-out infinite alternate;
+    animation: newtonBallLast 1s ease-out infinite alternate;
+  }
+  .spinner.newton .ball:last-child::after {
+    -webkit-animation: newtonBallFirst 1s ease-in infinite alternate-reverse;
+    animation: newtonBallFirst 1s ease-in infinite alternate-reverse;
+  }
