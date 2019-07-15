@@ -31,16 +31,28 @@ body {
     background-color: #fa4f4f !important;
 }
 .navbar {
-    background: #595959;
+    background: #4d4d4d;
     height: fit-content;
     min-height: fit-content;
     margin: 0;
     padding: 0;
     -webkit-app-region: drag;
 }
+#updateclouddiv {
+    width: fit-content;
+    height: 100%;
+    text-align: right;
+    right: 0;
+    margin-left: 97%;
+}
+#updateclouddiv:hover {
+    color: #BFBFBF;
+    text-decoration: none;
+    background-color: #A6A6A6;
+}
 .sidenav {
     height: 100%;
-    margin-top: 20px;
+    margin-top: 24px;
     width: 15%;
     position: fixed;
     z-index: 1;

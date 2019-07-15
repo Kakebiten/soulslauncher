@@ -22,30 +22,43 @@
     <div class="sidenav">
       <a href="index.html">Home</a>
       <a>News</a>
-      <a>Downloads</a>
+      <a id="downloads">Downloads</a>
+    </div>
+    <div class="alert alert-info alert-dismissible fade show" role="alert" id="update" style="margin-left: 15%; display: none;">
+      <strong>New Version Available!</strong> Contact Kakebiten#2312 on Discord for download link
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="position: absolute; padding-top: 10px;">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </div>
     <div class="main">
       <h1>Home</h1>
       <p>Welcome to the Souls Launcher!<br>This is a game launcher built by Souls' own Kakebiten in Electron.<br><span style="font-weight: bold;">Click a link to get started!</span></p>
+      <a href="#" data-toggle="tooltip" title="Some tooltip text!">Hover over me</a>      
     </div>
+    <footer class="footer mt-auto py3 align-items-end" style="background-color: #333333; bottom: 0.1; position: fixed; width: 100%; z-index: 1; text-align: right; height: 24px;">
+      <div id="updateclouddiv">
+        <img id="updatecloud" src="assets/cloud.png" alt="Update Cloud" height="20px" style="margin-top: 3px; padding-right: 1px; display: none;" data-toggle="tooltip" title="No update available!">
+        <img id="updateavailablecloud" src="assets/cloudupdate.png" alt="Update Available Cloud" height="20px" style="margin-top: 3px; padding-right: 1px; display: none;" data-toggle="tooltip" title="Update available!">
+      </div>
+    </footer>
     <script>window.$ = window.jQuery = require('jquery')</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script>
       $(document).ready(function() {
-        const remote = require('electron').remote;
+        $('[data-toggle="tooltip"]').tooltip()
+        const { remote, ipcRenderer } = require('electron');
         var windows = remote.getCurrentWindow();
         $("#minimize").click(function(e) {
           e.preventDefault();
           e.stopPropagation();
           windows.minimize();
         });
-        $(window).resize(function(e) {
-          if($(window).width() < 1005) {
-             $(html).width() = 1006;
-          }
+        ipcRenderer.on('update', function() {
+          $("#update").css("display", "block");
+          $("#updatecloud").hide();
+          $("#updateavailablecloud").show();
         });
-        
         $("#maximize").click(function(e) {
           e.preventDefault();
           e.stopPropagation();
@@ -60,10 +73,14 @@
           e.stopPropagation();
           window.close();
         });
-        $(".navbar").mousedown(function() {
-          timeoutId = setTimeout
-        })
+        if(remote.getGlobal( "update" ) == "true") {
+          $("#updatecloud").hide();
+          $("#updateavailablecloud").show();
+        } else {
+          $("#updateavailablecloud").hide();
+          $("#updatecloud").show();
+        }
       });
     </script>
-  </body>
+  <script src="runtime-es2015.js" type="module"></script><script src="polyfills-es2015.js" type="module"></script><script src="runtime-es5.js" nomodule></script><script src="polyfills-es5.js" nomodule></script><script src="styles-es2015.js" type="module"></script><script src="styles-es5.js" nomodule></script><script src="vendor-es2015.js" type="module"></script><script src="main-es2015.js" type="module"></script><script src="vendor-es5.js" nomodule></script><script src="main-es5.js" nomodule></script></body>
 </html>

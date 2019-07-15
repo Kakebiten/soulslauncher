@@ -1,7 +1,9 @@
 {
   "name": "souls-launcher",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "main.js",
+  "author": "Kakebiten",
+  "description": "Souls Launcher developed and maintained by Kakebiten",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -39,6 +41,7 @@
     "@types/node": "~8.9.4",
     "codelyzer": "^5.0.0",
     "electron": "^5.0.6",
+    "electron-builder": "^21.0.15",
     "electron-packager": "^14.0.1",
     "jasmine-core": "~3.4.0",
     "jasmine-spec-reporter": "~4.2.1",
