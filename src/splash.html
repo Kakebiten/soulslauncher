@@ -11,17 +11,16 @@
     <body>
         <img src="assets/soulstext.png" alt="Souls Logo" id="image">
         <p id="yes">Loading... Please Wait</p>
-        <div class="spinner newton" id="newton">
+        <!--<div class="spinner newton" id="newton">
             <div class="ball"></div>
             <div class="ball"></div>
             <div class="ball"></div>
             <div class="ball"></div>
             <div class="ball"></div>
-        </div>
+        </div>-->
     </body>
     <script>
         const { ipcRenderer } = require('electron');
-
         ipcRenderer.on('ready', function() {
             document.getElementById("yes").innerHTML = "Ready";
             document.getElementById("newton").style.display = "none"

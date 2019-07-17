@@ -4,6 +4,19 @@
   "main": "main.js",
   "author": "Kakebiten",
   "description": "Souls Launcher developed and maintained by Kakebiten",
+  "build": {
+    "appId": "com.kakebiten.soulslauncher",
+    "productName": "SoulsLauncher",
+    "target": "NSIS",
+    "directories": {
+      "output": "build",
+      "buildResources": "buildRes"
+    },
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false
+    }
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -24,11 +37,13 @@
     "@angular/platform-browser": "~8.0.0",
     "@angular/platform-browser-dynamic": "~8.0.0",
     "@angular/router": "~8.0.0",
+    "electron-log": "^3.0.6",
     "electron-updater": "^4.1.2",
     "jquery": "^3.4.1",
     "mysql": "^2.17.1",
     "rxjs": "~6.4.0",
     "tslib": "^1.9.0",
+    "unzipper": "^0.10.1",
     "zone.js": "~0.9.1"
   },
   "devDependencies": {

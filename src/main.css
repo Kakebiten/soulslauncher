@@ -1,3 +1,9 @@
+* {
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
+    
+}
 html {
     min-width: 1005px;
     overflow: hidden;
@@ -6,7 +12,7 @@ body {
     background-color: #8d8d8d;
 }
 .main {
-    margin-left: 15%;
+    margin-left: 200px;
     padding: 0px 10px;
 }
 .mncbtns {
@@ -41,9 +47,8 @@ body {
 #updateclouddiv {
     width: fit-content;
     height: 100%;
-    text-align: right;
-    right: 0;
-    margin-left: 97%;
+    position: absolute;
+    right: 5px;
 }
 #updateclouddiv:hover {
     color: #BFBFBF;
@@ -53,14 +58,14 @@ body {
 .sidenav {
     height: 100%;
     margin-top: 24px;
-    width: 15%;
+    width: 200px;
     position: fixed;
     z-index: 1;
     top: 0;
     left: 0;
     background-color: #595959;
     overflow: hidden;
-    padding-top: 20px;
+    padding-top: 1px;
 }
 .sidenav a {
     padding: 6px 8px 6px 16px;
@@ -72,4 +77,24 @@ body {
 .sidenav a:hover {
     color: #BFBFBF;
     background-color: #A6A6A6;
-} 
+}
+#currentVersionBlob {
+    position: absolute;
+    width: fit-content;
+    height: 100%;
+    display: inline-block;
+    left: 5px;
+    margin-right: 5px;
+}
+#changelog {
+    position: absolute;
+    width: fit-content;
+    height: 100%;
+    display: inline-block;
+    left: 5px;
+    margin-right: 5px;
+}
+#changelog:hover {
+    color: #333333 !important;
+    background-color: #A6A6A6;
+}

@@ -40,10 +40,17 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
+addversion.js
+/updatenew
+/updates/*
 
 # System Files
 .DS_Store
 Thumbs.db
 
-# Compiled files
+# Compiled Files
 /SoulsLauncher-win32-x64
+/build
+
+# Build Resources
+/buildRes

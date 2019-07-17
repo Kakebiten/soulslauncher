@@ -14,17 +14,17 @@
         <img src="assets/soulstext.png" alt="Souls Logo" style="height: 20px; margin: 0; padding: 0;">
       </a>
       <ul class="nav align-items-end">
-        <li class="nav-item"><a href="#" id="minimize" class="nav-item mncbtns">&ndash;</a></li>
-        <li class="nav-item"><a href="#" id="maximize" class="nav-item mncbtns">&#128470;</a></li>
-        <li class="nav-item"><a href="#" id="close" class="nav-item mncbtns">&times;</a></li>
+        <li class="nav-item text-muted"><a id="minimize" class="nav-item mncbtns">&ndash;</a></li>
+        <li class="nav-item text-muted"><a id="maximize" class="nav-item mncbtns">&#128470;</a></li>
+        <li class="nav-item text-muted"><a id="close" class="nav-item mncbtns">&times;</a></li>
       </ul>
     </nav>
     <div class="sidenav">
-      <a href="index.html">Home</a>
+      <a href="index.html" style="padding-top: 4px;">Home</a>
       <a>News</a>
       <a id="downloads">Downloads</a>
     </div>
-    <div class="alert alert-info alert-dismissible fade show" role="alert" id="update" style="margin-left: 15%; display: none;">
+    <div class="alert alert-info alert-dismissible fade show" role="alert" id="update" style="margin-left: 200px; display: none;">
       <strong>New Version Available!</strong> Contact Kakebiten#2312 on Discord for download link
       <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="position: absolute; padding-top: 10px;">
         <span aria-hidden="true">&times;</span>
@@ -32,13 +32,15 @@
     </div>
     <div class="main">
       <h1>Home</h1>
-      <p>Welcome to the Souls Launcher!<br>This is a game launcher built by Souls' own Kakebiten in Electron.<br><span style="font-weight: bold;">Click a link to get started!</span></p>
-      <a href="#" data-toggle="tooltip" title="Some tooltip text!">Hover over me</a>      
-    </div>
-    <footer class="footer mt-auto py3 align-items-end" style="background-color: #333333; bottom: 0.1; position: fixed; width: 100%; z-index: 1; text-align: right; height: 24px;">
+      <p>Welcome to the Souls Launcher!<br>This is a game launcher built by Souls' own Kakebiten in Electron.<br><span style="font-weight: bold;">Click a link to get started!</span></p>    </div>
+    <footer class="footer mt-auto py3 align-items-end" style="background-color: #333333; bottom: 0.1; position: fixed; text-align: right; width: 100%; z-index: 1; height: 24px;">
+      <p class="text-muted" id="currentVersionBlob"></p>
+      <a class="text-muted" id="changelog">Changelog</a>
       <div id="updateclouddiv">
-        <img id="updatecloud" src="assets/cloud.png" alt="Update Cloud" height="20px" style="margin-top: 3px; padding-right: 1px; display: none;" data-toggle="tooltip" title="No update available!">
-        <img id="updateavailablecloud" src="assets/cloudupdate.png" alt="Update Available Cloud" height="20px" style="margin-top: 3px; padding-right: 1px; display: none;" data-toggle="tooltip" title="Update available!">
+        <img id="updatecloud" src="assets/cloud.png" alt="Update Cloud" height="20px" style="margin-top: 3px; padding-right: 1px; display: none;" data-toggle="tooltip" title="No Update Available!">
+        <img id="updateavailablecloud" src="assets/cloudupdate.png" alt="Update Available Cloud" height="20px" style="margin-top: 3px; padding-right: 1px; display: none;" data-toggle="tooltip" data-html="true" title="Update Available!">
+        <img id="updatedownloadingcloud" src="assets/clouddownloading.png" alt="Downloading Update Cloud" height="20px" style="margin-top: 3px; padding-right: 1px; display: none;" data-toggle="tooltip" title="Update downloading">
+        <img id="updatedownloadfinished" src="assets/clouddownloadfinished.png" alt="Update Download Finished" height="20px" style="margin-top: 3px; padding-right: 1px; display: none;" data-toggle="tooltip" data-html="true" title="Update Downloaded!<br>Click to install">
       </div>
     </footer>
     <script>window.$ = window.jQuery = require('jquery')</script>
@@ -46,18 +48,40 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script>
       $(document).ready(function() {
-        $('[data-toggle="tooltip"]').tooltip()
+        $('[data-toggle="tooltip"]').tooltip();
+        var currentversion = null;
+        var maxversion = null;
         const { remote, ipcRenderer } = require('electron');
+        var currentversion = remote.getGlobal( "currentVersion" );
+        $("#currentVersionBlob").html(currentversion);
+        $("#changelog").css('left', ($("#currentVersionBlob").width() + 10));
         var windows = remote.getCurrentWindow();
-        $("#minimize").click(function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          windows.minimize();
+        $("#updateavailablecloud").click(function() {
+          ipcRenderer.send('downloadnewupdate');
+        });
+        $("#updatedownloadfinished").click(function() {
+          ipcRenderer.send('updateinstall');
+        });
+        ipcRenderer.on('downloadingupdate', function() {
+          $("#updateavailablecloud").hide();
+          $("#updatedownloadingcloud").show();
+        });
+        ipcRenderer.on('updateDownloaded', function() {
+          $("#updatedownloadingcloud").hide();
+          $("#updatedownloadfinished").show();
         });
         ipcRenderer.on('update', function() {
           $("#update").css("display", "block");
           $("#updatecloud").hide();
           $("#updateavailablecloud").show();
+          var currentversion = remote.getGlobal( "currentVersion" );
+          var maxversion = remote.getGlobal( "maxVersion" );
+          $("#updateavailablecloud").attr('data-original-title', 'Update Available!<br>Current Version: ' + currentversion + '<br>New Version: ' + maxversion + '<br>Click to download');
+        });
+        $("#minimize").click(function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          windows.minimize();
         });
         $("#maximize").click(function(e) {
           e.preventDefault();
@@ -74,13 +98,18 @@
           window.close();
         });
         if(remote.getGlobal( "update" ) == "true") {
+          var currentversion = remote.getGlobal( "currentVersion" );
+          var maxversion = remote.getGlobal( "maxVersion" );
           $("#updatecloud").hide();
           $("#updateavailablecloud").show();
+          $("#updateavailablecloud").attr('data-original-title', 'Update Available!<br>Current Version: ' + currentversion + '<br>New Version: ' + maxversion + '<br>Click to download');
         } else {
+          $("#updatedownloadfinished").hide();
+          $("#updatedownloadingcloud").hide();
           $("#updateavailablecloud").hide();
           $("#updatecloud").show();
         }
       });
     </script>
-  <script src="runtime-es2015.js" type="module"></script><script src="polyfills-es2015.js" type="module"></script><script src="runtime-es5.js" nomodule></script><script src="polyfills-es5.js" nomodule></script><script src="styles-es2015.js" type="module"></script><script src="styles-es5.js" nomodule></script><script src="vendor-es2015.js" type="module"></script><script src="main-es2015.js" type="module"></script><script src="vendor-es5.js" nomodule></script><script src="main-es5.js" nomodule></script></body>
+  <script src="runtime-es2015.js" type="module"></script><script src="polyfills-es2015.js" type="module"></script><script src="runtime-es5.js" nomodule></script><script src="polyfills-es5.js" nomodule></script><script src="styles-es2015.js" type="module"></script><script src="styles-es5.js" nomodule></script><script src="vendor-es2015.js" type="module"></script><script src="main-es2015.js" type="module"></script><script src="vendor-es5.js" nomodule></script><script src="main-es5.js" nomodule></script><script src="runtime-es2015.js" type="module"></script><script src="polyfills-es2015.js" type="module"></script><script src="runtime-es5.js" nomodule></script><script src="polyfills-es5.js" nomodule></script><script src="styles-es2015.js" type="module"></script><script src="styles-es5.js" nomodule></script><script src="vendor-es2015.js" type="module"></script><script src="main-es2015.js" type="module"></script><script src="vendor-es5.js" nomodule></script><script src="main-es5.js" nomodule></script></body>
 </html>
