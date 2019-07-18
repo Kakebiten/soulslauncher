@@ -4,11 +4,13 @@ const child_process = require('child_process');
 const mysql = require('mysql');
 const url = require('url');
 const path = require('path');
-const http = require('http');
+const https = require('https');
+const axios = require('axios');
 const fs = require('fs');
 const zlib = require('zlib');
 const unzipper = require('unzipper');
 let maxversion = null;
+let maxversionnumber = null;
 
 const { autoUpdater } = require('electron-updater');
 /*const connection = new mysql.createConnection({
@@ -29,8 +31,6 @@ const connection = new mysql.createConnection({
 
 connection.connect();
 
-//maxversionnumber = connection.query('SELECT MAX(versionnumber) FROM soulslauncher');
-
 connection.query('SELECT version FROM `soulslauncher` ORDER BY version DESC', function(error, results) {
     if(error) throw error;
     maxversion = results[0]['version']/*.toString()*/;
@@ -41,14 +41,33 @@ connection.query('SELECT versionnumber FROM `soulslauncher` ORDER BY version DES
     maxversionnumber = results[0]['versionnumber'];
 });
 
-const currentversion = 'a0.0.3';
+const currentversion = 'v0.0.7-alpha';
 global.currentVersion = currentversion;
-const currentversionnumber = '3';
+const currentversionnumber = '7';
 let win = null;
 let splash = null;
 let newVersion = null;
 
 app.on('ready', () => {
+
+    setInterval(() => {
+        connection.query('SELECT version FROM `soulslauncher` ORDER BY version DESC', function(error, results) {
+            if(error) throw error;
+            maxversion = results[0]['version'];
+        });
+        
+        connection.query('SELECT versionnumber FROM `soulslauncher` ORDER BY version DESC', function(error, results, fields) {
+            if(error) throw error;
+            maxversionnumber = results[0]['versionnumber'];
+        });
+
+        if(currentversion != maxversion && currentversionnumber < maxversionnumber) {
+            global.maxVersion = maxversion;
+            global.update = "true";
+        } else {
+            global.update = "false";
+        }
+    }, 10000);
 
     win = new BrowserWindow({ width: 1005, height: 600, icon: path.join(__dirname, "s.png"), frame: false, webPreferences: { nodeIntegration: true }, show: false, alwaysOnTop: true, minWidth: 1005, minHeight: 200 });
 
@@ -109,24 +128,19 @@ app.on('ready', () => {
     ipcMain.on('downloadnewupdate', () => {
         let focusedWindow = BrowserWindow.getFocusedWindow();
         focusedWindow.webContents.send('downloadingupdate');
-        try {
-        const file = fs.createWriteStream("updates/update.zip");
-        const request = http.get('http://github.com/Kakebiten/soulslauncher/releases/download/v0.0.3-alpha/update.zip', function(response) {
-            response.pipe(file);
-            file.on('finish', function() {
-                file.close();
+        axios({
+            method: 'get',
+            url: `http://github.com/Kakebiten/soulslauncher/releases/download/${maxversion}/update.zip`,
+            responseType: 'stream'
+        })
+            .then(function(response) {
+                response.data.pipe(fs.createWriteStream('updates/update.zip'));
                 win.focus();
-                BrowserWindow.getFocusedWindow();
-                focusedWindow.webContents.send('updateDownloaded');
-            }).on('error', function(err) {
+                BrowserWindow.getFocusedWindow().webContents.send('updatedownloaded');
+            })
+            .catch(function(err) {
                 console.log(err);
             });
-            
-        });
-        }catch(err) {
-            console.log(err);
-            electronLogger.error(err);
-        }
     });
 
     ipcMain.on('updateinstall', function() {
@@ -147,10 +161,10 @@ app.on('activate', () => {
     createWindow()
 });
 
-process.on('uncaughtException', (err) => {
+/*process.on('uncaughtException', (err) => {
     console.log(err);
     app.quit();
-});
+});*/
 
 app.on('window-all-closed', () => {
     if(process.platform != 'darwin') {

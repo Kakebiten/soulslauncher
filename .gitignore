@@ -43,6 +43,7 @@ testem.log
 addversion.js
 /updatenew
 /updates/*
+SoulsLauncher/
 
 # System Files
 .DS_Store
