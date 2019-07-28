@@ -14,7 +14,9 @@
     },
     "nsis": {
       "allowToChangeInstallationDirectory": true,
-      "oneClick": false
+      "oneClick": false,
+      "allowElevation": true,
+      "perMachine": true
     }
   },
   "scripts": {

@@ -8,7 +8,13 @@ const https = require('https');
 const axios = require('axios');
 const fs = require('fs');
 const zlib = require('zlib');
+const Store = require('./store.js');
 const unzipper = require('unzipper');
+const currentversion = 'v0.0.8-alpha';
+global.currentVersion = currentversion;
+const currentversionnumber = '8';
+let win = null;
+let splash = null;
 let maxversion = null;
 let maxversionnumber = null;
 
@@ -24,33 +30,33 @@ const { autoUpdater } = require('electron-updater');
 const connection = new mysql.createConnection({
     host            : "90.149.113.127",
     user            : "readonly",
-    password        : "NVtMq31GJCeEq8Ax",
+    password        : "9zOVUrtZwP9go44g",
     database        : "soulslauncher",
-    port            : 15603,
+    port            : 3306
 });
 
 connection.connect();
 
-connection.query('SELECT version FROM `soulslauncher` ORDER BY version DESC', function(error, results) {
+connection.query('SELECT version FROM `version` ORDER BY version DESC', function(error, results) {
     if(error) throw error;
     maxversion = results[0]['version']/*.toString()*/;
 });
 
-connection.query('SELECT versionnumber FROM `soulslauncher` ORDER BY version DESC', function(error, results, fields) {
+connection.query('SELECT versionnumber FROM `version` ORDER BY version DESC', function(error, results, fields) {
     if(error) throw error;
     maxversionnumber = results[0]['versionnumber'];
 });
 
-const currentversion = 'v0.0.7-alpha';
-global.currentVersion = currentversion;
-const currentversionnumber = '7';
-let win = null;
-let splash = null;
-let newVersion = null;
+const store = new Store({
+    configName: 'user-preferences',
+    defaults: {
+        theme: 'dark'
+    }
+});
 
 app.on('ready', () => {
 
-    setInterval(() => {
+    /*setInterval(() => {
         connection.query('SELECT version FROM `soulslauncher` ORDER BY version DESC', function(error, results) {
             if(error) throw error;
             maxversion = results[0]['version'];
@@ -67,18 +73,14 @@ app.on('ready', () => {
         } else {
             global.update = "false";
         }
-    }, 10000);
+    }, 10000);*/
 
-    win = new BrowserWindow({ width: 1005, height: 600, icon: path.join(__dirname, "s.png"), frame: false, webPreferences: { nodeIntegration: true }, show: false, alwaysOnTop: true, minWidth: 1005, minHeight: 200 });
+    win = new BrowserWindow({ width: 1005, height: 600, icon: path.join(__dirname, "s.png"), frame: false, webPreferences: { nodeIntegration: true }, show: false, alwaysOnTop: true, minWidth: 1005, minHeight: 200, title: 'SoulsLauncher' });
 
     splash = new BrowserWindow({
-        height: 310, width: 210, frame: false, alwaysOnTop: true, resizable: false, show: false, webPreferences: {
+        height: 310, width: 210, frame: false, alwaysOnTop: true, resizable: false, transparent: true, show: false, icon: path.join(__dirname, "s.png"), title: 'SoulsUpdater',webPreferences: {
             nodeIntegration: true
         }
-    });
-
-    splash.once('ready-to-show', function() {
-        splash.show();
     });
 
     splash.loadURL(url.format({
@@ -87,22 +89,29 @@ app.on('ready', () => {
         slashes: true
     }));
 
+    splash.once('ready-to-show', function() {
+        splash.show();
+        splash.focus();
+        setTimeout(function() {
+            if(currentversion != maxversion && currentversionnumber < maxversionnumber) {
+                BrowserWindow.getFocusedWindow().webContents.send('update');
+                global.maxVersion = maxversion;
+                global.update = "true";
+                global.updateDone = "no"
+                do {
+
+                } while(global.updateDone = "no");
+                win.show();
+                win.focus();
+            }
+        }, 1500);
+    });
+
     win.loadURL(url.format({
         pathname: path.join(__dirname, '/dist/SoulsLauncher/index.html'),
         protocol: 'file:',
         slashes: true
     }));
-
-    autoUpdater.fullChangelog = false;
-//    autoUpdater.checkForUpdates()
-
-    autoUpdater.on('update-available', function(info) {
-        newVersion = true;
-    });
-
-    autoUpdater.on('update-not-available', function(info) {
-        newVersion = false;
-    });
 
     win.once('ready-to-show', () => {
         splash.focus();
@@ -113,11 +122,6 @@ app.on('ready', () => {
             win.show();
             win.setAlwaysOnTop(false);
             win.focus();
-            if(currentversion != maxversion && currentversionnumber < maxversionnumber) {
-                BrowserWindow.getFocusedWindow().webContents.send('update');
-                global.maxVersion = maxversion;
-                global.update = "true";
-            }
         }, 1500);
     });
 
@@ -126,16 +130,21 @@ app.on('ready', () => {
     });
 
     ipcMain.on('downloadnewupdate', () => {
+        splash.focus();
         let focusedWindow = BrowserWindow.getFocusedWindow();
         focusedWindow.webContents.send('downloadingupdate');
         axios({
             method: 'get',
             url: `http://github.com/Kakebiten/soulslauncher/releases/download/${maxversion}/update.zip`,
-            responseType: 'stream'
+            responseType: 'stream',
+            onDownloadPercentage: (progressEvent) => {
+                var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                focusedWindow.webContents.send('downloadPercentage', percentCompleted);
+            }
         })
             .then(function(response) {
-                response.data.pipe(fs.createWriteStream('updates/update.zip'));
-                win.focus();
+                response.data.pipe(fs.createWriteStream(/*'resources/app/*/'updates/update.zip'));
+                splash.focus();
                 BrowserWindow.getFocusedWindow().webContents.send('updatedownloaded');
             })
             .catch(function(err) {
@@ -144,15 +153,15 @@ app.on('ready', () => {
     });
 
     ipcMain.on('updateinstall', function() {
-        child_process.exec('node update.js', function(error, stdout, stderr) {
-            console.log(`${stdout}`);
-            console.log(`${stderr}`);
-            if(error !== null) {
-                console.log(`exec error: ${error}`);
-            }
-            app.relaunch();
-            app.quit();
-        });
+        fs.createReadStream('updates/update.zip')
+            .pipe(unzipper.Extract({ path: __dirname }))
+            .on('error', function(e) {
+                console.log(e);
+            })
+            .on('close', function() {
+                app.relaunch();
+                app.quit();
+            });
     });
 });
 
@@ -161,10 +170,11 @@ app.on('activate', () => {
     createWindow()
 });
 
-/*process.on('uncaughtException', (err) => {
+process.on('uncaughtException', (err) => {
     console.log(err);
+    electronLogger.info(err);
     app.quit();
-});*/
+});
 
 app.on('window-all-closed', () => {
     if(process.platform != 'darwin') {

@@ -41,6 +41,7 @@ yarn-error.log
 testem.log
 /typings
 addversion.js
+test.js
 /updatenew
 /updates/*
 SoulsLauncher/
@@ -51,6 +52,7 @@ Thumbs.db
 
 # Compiled Files
 /SoulsLauncher-win32-x64
+/SoulsLauncherDebug-win32-x64
 /build
 
 # Build Resources
