@@ -10,9 +10,9 @@ const fs = require('fs');
 const zlib = require('zlib');
 const Store = require('./store.js');
 const unzipper = require('unzipper');
-const currentversion = 'v0.0.8-alpha';
+const currentversion = 'v0.0.9-alpha';
 global.currentVersion = currentversion;
-const currentversionnumber = '8';
+const currentversionnumber = '9';
 let win = null;
 let splash = null;
 let maxversion = null;
@@ -92,7 +92,7 @@ app.on('ready', () => {
     splash.once('ready-to-show', function() {
         splash.show();
         splash.focus();
-        setTimeout(function() {
+        /*setTimeout(function() {
             if(currentversion != maxversion && currentversionnumber < maxversionnumber) {
                 BrowserWindow.getFocusedWindow().webContents.send('update');
                 global.maxVersion = maxversion;
@@ -104,7 +104,7 @@ app.on('ready', () => {
                 win.show();
                 win.focus();
             }
-        }, 1500);
+        }, 1500);*/
     });
 
     win.loadURL(url.format({
@@ -115,14 +115,22 @@ app.on('ready', () => {
 
     win.once('ready-to-show', () => {
         splash.focus();
-        let focusedWindow = BrowserWindow.getFocusedWindow();
-        focusedWindow.webContents.send('ready');
-        setTimeout(function() {
-            splash.destroy();
-            win.show();
-            win.setAlwaysOnTop(false);
-            win.focus();
-        }, 1500);
+        if(currentversion != maxversion && currentversionnumber < maxversionnumber) {
+            splash.focus();
+            BrowserWindow.getFocusedWindow().webContents.send('update');
+            global.maxVersion = maxversion;
+            global.update = "true";
+        } else {
+            splash.focus();
+            let focusedWindow = BrowserWindow.getFocusedWindow();
+            focusedWindow.webContents.send('ready');
+            setTimeout(function() {
+                splash.destroy();
+                win.show();
+                win.setAlwaysOnTop(false);
+                win.focus();
+            }, 1500);
+        }
     });
 
     win.on('closed', () => {
@@ -135,17 +143,30 @@ app.on('ready', () => {
         focusedWindow.webContents.send('downloadingupdate');
         axios({
             method: 'get',
-            url: `http://github.com/Kakebiten/soulslauncher/releases/download/${maxversion}/update.zip`,
+            url: /*`http://github.com/Kakebiten/soulslauncher/releases/download/${maxversion}/update.zip`*/ 'https://sourceforge.net/projects/xampp/files/XAMPP%20Windows/7.3.7/xampp-portable-windows-x64-7.3.7-1-VC15.zip',
             responseType: 'stream',
-            onDownloadPercentage: (progressEvent) => {
+            onDownloadProgress: function (progressEvent) {
                 var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                focusedWindow.webContents.send('downloadPercentage', percentCompleted);
+                splash.focus();
+                BrowserWindow.getFocusedWindow().webContents.send('downloadPercentage', percentCompleted);
             }
         })
             .then(function(response) {
-                response.data.pipe(fs.createWriteStream(/*'resources/app/*/'updates/update.zip'));
-                splash.focus();
-                BrowserWindow.getFocusedWindow().webContents.send('updatedownloaded');
+                const stream = response.data.pipe(fs.createWriteStream('resources/app/updates/update.zip'));
+                /*splash.focus();
+                let focusedWindowUpdate = BrowserWindow.getFocusedWindow();
+                focusedWindowUpdate.webContents.send('maxProgress', response.headers["content-length"]);
+                while(response.data._readableState["length"] < response.headers["content-length"]) {
+                    setTimeout(() => {
+                        splash.focus();
+                        focusedWindowUpdate.webContents.send('progressUpdate', response.data._readableState["length"]);
+                        console.log(response.data._readableState["length"])
+                    }, 300);
+                }*/
+                stream.on('close', () => {
+                    splash.focus();
+                    BrowserWindow.getFocusedWindow().webContents.send('updatedownloaded');
+                });
             })
             .catch(function(err) {
                 console.log(err);
@@ -159,6 +180,10 @@ app.on('ready', () => {
                 console.log(e);
             })
             .on('close', function() {
+                fs.unlink('updates/update.zip', function(err) {
+                    if(err) throw err;
+                    console.log('tempoary update.zip was deleted');
+                });
                 app.relaunch();
                 app.quit();
             });
